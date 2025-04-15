@@ -46,29 +46,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        // Data contoh (bisa diganti dengan data dinamis dari database atau API)
-        const dataAnggaran = {
-            labels: ['Sekretariat', 'TPH', 'SDM', 'Perkebunan', 'UPTD', 'ALSINTAN', 'KETAPANG'],
-            datasets: [{
-                label: 'Total Anggaran (Rp)',
-                data: [5000000, 499999500, 3500000, 6000000, 4500000, 2500000, 7000000],
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const dataProgres = {
-            labels: ['Sekretariat', 'TPH', 'SDM', 'Perkebunan', 'UPTD', 'ALSINTAN', 'KETAPANG'],
-            datasets: [{
-                label: 'Progres (%)',
-                data: [80, 65, 90, 70, 85, 60, 75],
-                backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 1
-            }]
-        };
-
+        // Data Pagu Anggaran (Statik)
         const dataPaguRealisasi = {
             labels: ['Sekretariat', 'TPH', 'SDM', 'Perkebunan', 'UPTD', 'ALSINTAN', 'KETAPANG'],
             datasets: [
@@ -81,7 +59,7 @@
                 },
                 {
                     label: 'Realisasi Anggaran',
-                    data: [4000000, 325000000, 3150000, 4200000, 4000000, 2200000, 6500000],
+                    data: [], // Data realisasi akan diisi dinamis nanti
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
@@ -89,11 +67,11 @@
             ]
         };
 
-        // Configurasi Chart.js untuk Anggaran
-        const ctxAnggaran = document.getElementById('anggaranChart').getContext('2d');
-        new Chart(ctxAnggaran, {
+        // Configurasi Chart.js untuk Pagu vs Realisasi
+        const ctxPaguRealisasi = document.getElementById('paguRealisasiChart').getContext('2d');
+        new Chart(ctxPaguRealisasi, {
             type: 'bar',
-            data: dataAnggaran,
+            data: dataPaguRealisasi,
             options: {
                 responsive: true,
                 scales: {
@@ -103,27 +81,61 @@
                 }
             }
         });
+
+        // Data Penyerapan Anggaran Lintas Bidang (Dapat diambil dari API)
+        function fetchAnggaranData() {
+            $.get('API_URL_HERE', function(response) {
+                // Misalkan API memberikan response seperti:
+                // { labels: ["Sekretariat", "TPH", "SDM", "Perkebunan", "UPTD", "ALSINTAN", "KETAPANG"], data: [4000000, 325000000, 3150000, 4200000, 4000000, 2200000, 6500000] }
+
+                const anggaranData = {
+                    labels: response.labels, // Data bidang
+                    datasets: [{
+                        label: 'Total Anggaran (Rp)',
+                        data: response.data, // Data realisasi
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    }]
+                };
+
+                // Update Chart.js dengan data baru
+                const ctxAnggaran = document.getElementById('anggaranChart').getContext('2d');
+                new Chart(ctxAnggaran, {
+                    type: 'bar',
+                    data: anggaranData,
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Ambil data penyerapan anggaran dari API saat halaman dimuat
+        fetchAnggaranData();
+
+        // Data Progres Penyerapan Anggaran (Statis)
+        const dataProgres = {
+            labels: ['Sekretariat', 'TPH', 'SDM', 'Perkebunan', 'UPTD', 'ALSINTAN', 'KETAPANG'],
+            datasets: [{
+                label: 'Progres (%)',
+                data: [80, 65, 90, 70, 85, 60, 75],
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        };
 
         // Configurasi Chart.js untuk Progres
         const ctxProgres = document.getElementById('progresChart').getContext('2d');
         new Chart(ctxProgres, {
             type: 'bar',
             data: dataProgres,
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
-        // Configurasi Chart.js untuk Pagu vs Realisasi
-        const ctxPaguRealisasi = document.getElementById('paguRealisasiChart').getContext('2d');
-        new Chart(ctxPaguRealisasi, {
-            type: 'bar',
-            data: dataPaguRealisasi,
             options: {
                 responsive: true,
                 scales: {
